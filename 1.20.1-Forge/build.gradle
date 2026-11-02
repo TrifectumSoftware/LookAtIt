@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'xyz.wagyourtail.unimined' version '1.4.2-SNAPSHOT'
+}
+
+group 'com.example'
+version '1.0.0'
+
+base {
+    archivesName = 'lookatit-1.20.1-Forge'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+unimined.minecraft {
+    version "1.20.1"
+
+    minecraftForge {
+        loader "47.4.0"
+    }
+
+    mappings {
+        mojmap()
+    }
+
+    defaultRemapJar = false
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+}

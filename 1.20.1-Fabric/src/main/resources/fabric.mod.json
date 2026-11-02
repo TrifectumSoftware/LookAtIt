@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "lookatit",
+  "version": "${version}",
+  "name": "lookatit",
+  "description": "Mod that lets you show items in chat!",
+  "authors": ["trifectumsoftware", "irislgtm"],
+  "license": "MIT",
+  "icon": "assets/lookatit/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["trifectumsoftware.lookatit.ShowItemMod"],
+    "client": ["trifectumsoftware.lookatit.client.ShowItemClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}

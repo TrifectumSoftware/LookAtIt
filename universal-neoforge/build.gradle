@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'xyz.wagyourtail.unimined' version '1.4.2-SNAPSHOT'
+}
+
+group = 'trifectumsoftware'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = "https://maven.neoforged.net/releases" }
+}
+
+unimined.minecraft {
+    version "1.21.1"
+    mappings {
+        mojmap()
+    }
+    neoForge {
+        loader "228"
+    }
+    defaultRemapJar = false
+}
+
+dependencies {
+    implementation project(':universal-common')
+}

@@ -1,0 +1,7 @@
+.gradle/
+build/
+run/
+*.log
+*.tmp
+curseforge.project
+curseforge.token

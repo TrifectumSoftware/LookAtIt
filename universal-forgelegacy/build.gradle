@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id 'xyz.wagyourtail.unimined' version '1.4.2-SNAPSHOT'
+}
+
+group = 'trifectumsoftware'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    sourceCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = "https://maven.minecraftforge.net/" }
+}
+
+sourceSets {
+    patcher {
+        java.srcDir 'src/patcher/java'
+    }
+}
+
+dependencies {
+    implementation project(':universal-common')
+    patcherImplementation 'org.ow2.asm:asm:9.7'
+}
+
+unimined.minecraft {
+    version "1.8.9"
+    mappings {
+        searge()
+        mcp("stable", "22-1.8.9")
+    }
+    minecraftForge {
+        loader "11.15.1.2318-1.8.9"
+    }
+    defaultRemapJar = false
+}
+
+tasks.register('patchForgeLegacyClass', JavaExec) {
+    dependsOn 'classes', 'patcherClasses'
+    classpath = sourceSets.patcher.runtimeClasspath
+    mainClass = 'trifectumsoftware.lookatit.patcher.AnnotationPatcher'
+    def input = layout.buildDirectory.file('classes/java/main/trifectumsoftware/lookatit/universal/forgelegacy/ForgeLegacyEntry.class')
+    def output = layout.buildDirectory.file('patched/ForgeLegacyEntry.class')
+    inputs.file(input)
+    outputs.file(output)
+    doFirst {
+        args input.get().asFile.absolutePath, output.get().asFile.absolutePath
+    }
+}

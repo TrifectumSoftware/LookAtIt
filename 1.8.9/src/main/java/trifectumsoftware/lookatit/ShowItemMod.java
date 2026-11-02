@@ -1,0 +1,34 @@
+package trifectumsoftware.lookatit;
+
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
+import trifectumsoftware.lookatit.client.ChatIconRenderer;
+import trifectumsoftware.lookatit.client.ClientHandler;
+import trifectumsoftware.lookatit.config.LookAtItConfig;
+import trifectumsoftware.lookatit.network.ShowItemMessage;
+
+@Mod(modid = ShowItemMod.MODID, name = "Show Item In Chat", version = "1.0.0")
+public class ShowItemMod {
+    public static final String MODID = "lookatit";
+    public static SimpleNetworkWrapper NETWORK;
+
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        LookAtItConfig.load();
+        NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+        NETWORK.registerMessage(ShowItemMessage.Handler.class, ShowItemMessage.class, 0, Side.SERVER);
+    }
+
+    @EventHandler
+    public void init(FMLInitializationEvent event) {
+        if (event.getSide() == Side.CLIENT) {
+            ClientHandler.init();
+            ChatIconRenderer.init();
+        }
+    }
+}

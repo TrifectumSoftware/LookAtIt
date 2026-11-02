@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'xyz.wagyourtail.unimined' version '1.4.2-SNAPSHOT'
+}
+
+group 'com.example'
+version '1.0.0'
+
+base {
+    archivesName = 'lookatit-1.21.1-NeoForge'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = "https://maven.neoforged.net/releases" }
+}
+
+unimined.minecraft {
+    version "1.21.1"
+
+    neoForge {
+        loader "228"
+    }
+
+    mappings {
+        mojmap()
+    }
+
+    defaultRemapJar = false
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand "version": project.version
+    }
+}

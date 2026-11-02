@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'xyz.wagyourtail.unimined' version '1.4.2-SNAPSHOT'
+}
+
+group = 'trifectumsoftware'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    sourceCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = "https://maven.minecraftforge.net/" }
+}
+
+unimined.minecraft {
+    version "1.7.10"
+    mappings {
+        searge()
+        mcp("stable", "12-1.7.10")
+    }
+    minecraftForge {
+        loader "10.13.4.1614-1.7.10"
+    }
+    defaultRemapJar = false
+}
+
+dependencies {
+    implementation project(':universal-common')
+}

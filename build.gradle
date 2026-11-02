@@ -1,0 +1,98 @@
+def curseforgeJars = [
+        [project: ':1.7.10', jar: 'lookatit-1.7.10-1.0.0.jar', name: 'lookatit 1.0.0 (1.7.10 Forge)', versions: ['1.7.10', 'Forge']],
+        [project: ':1.8.9', jar: 'lookatit-1.8.9-1.0.0.jar', name: 'lookatit 1.0.0 (1.8.9 Forge)', versions: ['1.8.9', 'Forge']],
+        [project: ':1.12.2', jar: 'lookatit-1.12.2-1.0.0.jar', name: 'lookatit 1.0.0 (1.12.2 Forge)', versions: ['1.12.2', 'Forge']],
+        [project: ':1.20.1-Forge', jar: 'lookatit-1.20.1-Forge-1.0.0.jar', name: 'lookatit 1.0.0 (1.20.1 Forge)', versions: ['1.20.1', 'Forge']],
+        [project: ':1.20.1-Fabric', jar: 'lookatit-1.20.1-Fabric-1.0.0.jar', name: 'lookatit 1.0.0 (1.20.1 Fabric)', versions: ['1.20.1', 'Fabric']],
+        [project: ':1.21.1-NeoForge', jar: 'lookatit-1.21.1-NeoForge-1.0.0.jar', name: 'lookatit 1.0.0 (1.21.1 NeoForge)', versions: ['1.21.1', 'NeoForge']],
+        [project: ':26.1.2-NeoForge', jar: 'lookatit-26.1.2-NeoForge-1.0.0.jar', name: 'lookatit 1.0.0 (26.1.2 NeoForge)', versions: ['26.1.2', 'NeoForge']],
+        [project: ':26.2-NeoForge', jar: 'lookatit-26.2-NeoForge-1.0.0.jar', name: 'lookatit 1.0.0 (26.2 NeoForge)', versions: ['26.2', 'NeoForge']],
+        [project: ':26.3-NeoForge', jar: 'lookatit-26.3-NeoForge-1.0.0.jar', name: 'lookatit 1.0.0 (26.3 NeoForge)', versions: ['26.3', 'NeoForge']]
+]
+
+tasks.register('curseforgeUploadAll') {
+    dependsOn ':1.7.10:jar', ':1.8.9:jar', ':1.12.2:jar',
+            ':1.20.1-Forge:jar', ':1.20.1-Fabric:remapJar',
+            ':1.21.1-NeoForge:jar', ':26.1.2-NeoForge:jar',
+            ':26.2-NeoForge:jar', ':26.3-NeoForge:jar'
+
+    doLast {
+        def projectFile = file('curseforge.project')
+        def tokenFile = file('curseforge.token')
+        def projectId = System.getenv('CURSEFORGE_PROJECT_ID') ?: findProperty('curseforgeProjectId') ?: (projectFile.isFile() ? projectFile.text.trim() : null)
+        def token = System.getenv('CURSEFORGE_TOKEN') ?: findProperty('curseforgeToken') ?: (tokenFile.isFile() ? tokenFile.text.trim() : null)
+        def dryRun = (System.getenv('CURSEFORGE_DRY_RUN') ?: findProperty('curseforgeDryRun')) == 'true'
+        def releaseType = System.getenv('CURSEFORGE_RELEASE_TYPE') ?: 'release'
+        def only = System.getenv('CURSEFORGE_ONLY') ?: findProperty('curseforgeOnly')
+        def skip = System.getenv('CURSEFORGE_SKIP') ?: findProperty('curseforgeSkip')
+
+        if (!dryRun && (!projectId || !token)) {
+            throw new GradleException('Set CURSEFORGE_PROJECT_ID and CURSEFORGE_TOKEN, or run with -PcurseforgeDryRun=true.')
+        }
+
+        def failures = []
+        curseforgeJars.each { entry ->
+            if (only && !entry.name.contains(only)) {
+                return
+            }
+            if (skip && entry.name.contains(skip)) {
+                return
+            }
+            def dir = entry.project.substring(1)
+            def file = file("${dir}/build/libs/${entry.jar}")
+            if (!file.isFile()) {
+                failures << "Missing ${file}"
+                return
+            }
+            if (dryRun) {
+                println "Would upload ${file.name} as '${entry.name}' for ${entry.versions}"
+                return
+            }
+            try {
+                uploadCurseForge(projectId, token, file, entry.name, entry.versions, releaseType)
+            } catch (Exception e) {
+                failures << e.message
+                println "FAILED ${file.name}: ${e.message}"
+            }
+        }
+        if (!failures.isEmpty()) {
+            throw new GradleException("CurseForge uploads failed:\n" + failures.join("\n"))
+        }
+    }
+}
+
+def uploadCurseForge(String projectId, String token, File file, String displayName, List<String> gameVersions, String releaseType) {
+    def boundary = '----lookatit' + System.currentTimeMillis()
+    def metadata = groovy.json.JsonOutput.toJson([
+            changelog    : 'Initial release.',
+            changelogType: 'markdown',
+            displayName  : displayName,
+            gameVersionNames: gameVersions + ['Client', 'Server'],
+            releaseType  : releaseType
+    ])
+    def body = new ByteArrayOutputStream()
+    body.write("--${boundary}\r\n".getBytes('UTF-8'))
+    body.write('Content-Disposition: form-data; name="metadata"\r\n'.getBytes('UTF-8'))
+    body.write('Content-Type: application/json\r\n\r\n'.getBytes('UTF-8'))
+    body.write(metadata.getBytes('UTF-8'))
+    body.write("\r\n--${boundary}\r\n".getBytes('UTF-8'))
+    body.write("Content-Disposition: form-data; name=\"file\"; filename=\"${file.name}\"\r\n".getBytes('UTF-8'))
+    body.write('Content-Type: application/java-archive\r\n\r\n'.getBytes('UTF-8'))
+    body.write(file.bytes)
+    body.write("\r\n--${boundary}--\r\n".getBytes('UTF-8'))
+
+    def connection = new URL("https://minecraft.curseforge.com/api/projects/${projectId}/upload-file").openConnection()
+    connection.requestMethod = 'POST'
+    connection.doOutput = true
+    connection.setRequestProperty('X-Api-Token', token)
+    connection.setRequestProperty('Content-Type', "multipart/form-data; boundary=${boundary}")
+    connection.setFixedLengthStreamingMode(body.size())
+    connection.outputStream.withStream { it.write(body.toByteArray()) }
+
+    def code = connection.responseCode
+    def response = code >= 200 && code < 300 ? connection.inputStream.text : connection.errorStream?.text
+    if (code < 200 || code >= 300) {
+        throw new GradleException("CurseForge upload failed (${code}) for ${file.name}: ${response}")
+    }
+    println "Uploaded ${file.name}: ${response}"
+}

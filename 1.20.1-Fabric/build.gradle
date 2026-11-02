@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'xyz.wagyourtail.unimined' version '1.4.2-SNAPSHOT'
+}
+
+group 'com.example'
+version '1.0.0'
+
+base {
+    archivesName = 'lookatit-1.20.1-Fabric'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = "https://maven.fabricmc.net/" }
+    maven { url = "https://maven.wagyourtail.xyz/releases" }
+}
+
+unimined.minecraft {
+    version "1.20.1"
+
+    mappings {
+        intermediary()
+        mojmap()
+    }
+
+    fabric {
+        loader "0.16.14"
+    }
+
+    defaultRemapJar = true
+}
+
+dependencies {
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.92.2+1.20.1"
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}

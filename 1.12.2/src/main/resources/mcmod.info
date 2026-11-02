@@ -1,0 +1,13 @@
+[
+  {
+    "modid": "lookatit",
+    "name": "lookatit",
+    "description": "Mod that lets you show items in chat!",
+    "version": "${version}",
+    "mcversion": "1.12.2",
+    "authorList": ["trifectumsoftware", "irislgtm"],
+    "logoFile": "assets/lookatit/icon.png",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

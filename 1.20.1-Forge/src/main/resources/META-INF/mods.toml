@@ -1,0 +1,11 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="lookatit"
+version="${version}"
+displayName="lookatit"
+authors="trifectumsoftware, irislgtm"
+description="Mod that lets you show items in chat!"
+logoFile="assets/lookatit/icon.png"
