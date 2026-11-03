@@ -43,7 +43,7 @@ public class ClientHandler {
             wasDown = false;
         }
     }
-
+// I know all these null checks are sloppy, need to remove them soon
     private void handle(Minecraft mc, GuiContainer gui) {
         Slot slot = null;
         String[] names = new String[]{"theSlot", "field_147006_u"};
