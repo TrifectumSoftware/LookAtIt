@@ -63,7 +63,6 @@ public class ChatIconRenderer {
                 pose.popMatrix();
             }
         } catch (Throwable t) {
-            t.printStackTrace();
         }
     }
 

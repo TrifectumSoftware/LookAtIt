@@ -12,7 +12,7 @@ import trifectumsoftware.lookatit.client.ClientHandler;
 import trifectumsoftware.lookatit.config.LookAtItConfig;
 import trifectumsoftware.lookatit.network.ShowItemMessage;
 
-@Mod(modid = ShowItemMod.MODID, name = "Show Item In Chat", version = "1.0.0")
+@Mod(modid = ShowItemMod.MODID, name = "LookAtIt", version = "1.0.0")
 public class ShowItemMod {
     public static final String MODID = "lookatit";
     public static SimpleNetworkWrapper NETWORK;

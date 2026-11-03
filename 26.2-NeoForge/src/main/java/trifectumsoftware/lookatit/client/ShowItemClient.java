@@ -59,7 +59,6 @@ public class ShowItemClient {
                 wasDown = false;
             }
         } catch (Throwable t) {
-            t.printStackTrace();
         }
     }
 }

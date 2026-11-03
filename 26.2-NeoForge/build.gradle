@@ -7,7 +7,7 @@ group 'com.example'
 version '1.0.0'
 
 base {
-    archivesName = 'lookatit-26.2-NeoForge'
+    archivesName = 'LookAtIt-26.2-NeoForge'
 }
 
 java {

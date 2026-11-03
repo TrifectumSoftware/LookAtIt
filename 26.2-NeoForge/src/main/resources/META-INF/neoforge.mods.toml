@@ -5,7 +5,7 @@ license="MIT"
 [[mods]]
 modId="lookatit"
 version="${version}"
-displayName="lookatit"
+displayName="LookAtIt"
 authors="trifectumsoftware, irislgtm"
 description="Mod that lets you show items in chat!"
 iconFile="assets/lookatit/icon.png"

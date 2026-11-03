@@ -5,3 +5,5 @@ run/
 *.tmp
 curseforge.project
 curseforge.token
+modrinth.project
+modrinth.token

@@ -7,7 +7,7 @@ group 'com.example'
 version '1.0.0'
 
 base {
-    archivesName = 'lookatit-1.20.1-Fabric'
+    archivesName = 'LookAtIt-1.20.1-Fabric'
 }
 
 java {

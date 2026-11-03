@@ -1,20 +1,32 @@
-def curseforgeJars = [
-        [project: ':1.7.10', jar: 'lookatit-1.7.10-1.0.0.jar', name: 'lookatit 1.0.0 (1.7.10 Forge)', versions: ['1.7.10', 'Forge']],
-        [project: ':1.8.9', jar: 'lookatit-1.8.9-1.0.0.jar', name: 'lookatit 1.0.0 (1.8.9 Forge)', versions: ['1.8.9', 'Forge']],
-        [project: ':1.12.2', jar: 'lookatit-1.12.2-1.0.0.jar', name: 'lookatit 1.0.0 (1.12.2 Forge)', versions: ['1.12.2', 'Forge']],
-        [project: ':1.20.1-Forge', jar: 'lookatit-1.20.1-Forge-1.0.0.jar', name: 'lookatit 1.0.0 (1.20.1 Forge)', versions: ['1.20.1', 'Forge']],
-        [project: ':1.20.1-Fabric', jar: 'lookatit-1.20.1-Fabric-1.0.0.jar', name: 'lookatit 1.0.0 (1.20.1 Fabric)', versions: ['1.20.1', 'Fabric']],
-        [project: ':1.21.1-NeoForge', jar: 'lookatit-1.21.1-NeoForge-1.0.0.jar', name: 'lookatit 1.0.0 (1.21.1 NeoForge)', versions: ['1.21.1', 'NeoForge']],
-        [project: ':26.1.2-NeoForge', jar: 'lookatit-26.1.2-NeoForge-1.0.0.jar', name: 'lookatit 1.0.0 (26.1.2 NeoForge)', versions: ['26.1.2', 'NeoForge']],
-        [project: ':26.2-NeoForge', jar: 'lookatit-26.2-NeoForge-1.0.0.jar', name: 'lookatit 1.0.0 (26.2 NeoForge)', versions: ['26.2', 'NeoForge']],
-        [project: ':26.3-NeoForge', jar: 'lookatit-26.3-NeoForge-1.0.0.jar', name: 'lookatit 1.0.0 (26.3 NeoForge)', versions: ['26.3', 'NeoForge']]
+def uploadJars = [
+        [project: ':1.7.10', jar: 'LookAtIt-1.7.10-1.0.0.jar', name: 'LookAtIt 1.0.0 (1.7.10 Forge)', mc: '1.7.10', cfLoader: 'Forge', mrLoader: 'forge'],
+        [project: ':1.8.9', jar: 'LookAtIt-1.8.9-1.0.0.jar', name: 'LookAtIt 1.0.0 (1.8.9 Forge)', mc: '1.8.9', cfLoader: 'Forge', mrLoader: 'forge'],
+        [project: ':1.12.2', jar: 'LookAtIt-1.12.2-1.0.0.jar', name: 'LookAtIt 1.0.0 (1.12.2 Forge)', mc: '1.12.2', cfLoader: 'Forge', mrLoader: 'forge'],
+        [project: ':1.20.1-Forge', jar: 'LookAtIt-1.20.1-Forge-1.0.0.jar', name: 'LookAtIt 1.0.0 (1.20.1 Forge)', mc: '1.20.1', cfLoader: 'Forge', mrLoader: 'forge'],
+        [project: ':1.20.1-Fabric', jar: 'LookAtIt-1.20.1-Fabric-1.0.0.jar', name: 'LookAtIt 1.0.0 (1.20.1 Fabric)', mc: '1.20.1', cfLoader: 'Fabric', mrLoader: 'fabric'],
+        [project: ':1.21.1-NeoForge', jar: 'LookAtIt-1.21.1-NeoForge-1.0.0.jar', name: 'LookAtIt 1.0.0 (1.21.1 NeoForge)', mc: '1.21.1', cfLoader: 'NeoForge', mrLoader: 'neoforge'],
+        [project: ':26.1.2-NeoForge', jar: 'LookAtIt-26.1.2-NeoForge-1.0.0.jar', name: 'LookAtIt 1.0.0 (26.1.2 NeoForge)', mc: '26.1.2', cfLoader: 'NeoForge', mrLoader: 'neoforge'],
+        [project: ':26.2-NeoForge', jar: 'LookAtIt-26.2-NeoForge-1.0.0.jar', name: 'LookAtIt 1.0.0 (26.2 NeoForge)', mc: '26.2', cfLoader: 'NeoForge', mrLoader: 'neoforge'],
+        [project: ':26.3-NeoForge', jar: 'LookAtIt-26.3-NeoForge-1.0.0.jar', name: 'LookAtIt 1.0.0 (26.3 NeoForge)', mc: '26.3', cfLoader: 'NeoForge', mrLoader: 'neoforge']
 ]
 
+def uploadDepends = [
+        ':1.7.10:jar', ':1.8.9:jar', ':1.12.2:jar',
+        ':1.20.1-Forge:jar', ':1.20.1-Fabric:remapJar',
+        ':1.21.1-NeoForge:jar', ':26.1.2-NeoForge:jar',
+        ':26.2-NeoForge:jar', ':26.3-NeoForge:jar'
+]
+
+def jarFile = { entry -> file("${entry.project.substring(1)}/build/libs/${entry.jar}") }
+
+def selectedJars = { only, skip ->
+    uploadJars.findAll { entry ->
+        (!only || entry.name.contains(only)) && (!skip || !entry.name.contains(skip))
+    }
+}
+
 tasks.register('curseforgeUploadAll') {
-    dependsOn ':1.7.10:jar', ':1.8.9:jar', ':1.12.2:jar',
-            ':1.20.1-Forge:jar', ':1.20.1-Fabric:remapJar',
-            ':1.21.1-NeoForge:jar', ':26.1.2-NeoForge:jar',
-            ':26.2-NeoForge:jar', ':26.3-NeoForge:jar'
+    dependsOn uploadDepends
 
     doLast {
         def projectFile = file('curseforge.project')
@@ -31,28 +43,21 @@ tasks.register('curseforgeUploadAll') {
         }
 
         def failures = []
-        curseforgeJars.each { entry ->
-            if (only && !entry.name.contains(only)) {
-                return
-            }
-            if (skip && entry.name.contains(skip)) {
-                return
-            }
-            def dir = entry.project.substring(1)
-            def file = file("${dir}/build/libs/${entry.jar}")
-            if (!file.isFile()) {
-                failures << "Missing ${file}"
+        selectedJars(only, skip).each { entry ->
+            def target = jarFile(entry)
+            if (!target.isFile()) {
+                failures << "Missing ${target}"
                 return
             }
             if (dryRun) {
-                println "Would upload ${file.name} as '${entry.name}' for ${entry.versions}"
+                println "Would upload ${target.name} as '${entry.name}' for ${entry.mc} ${entry.cfLoader}"
                 return
             }
             try {
-                uploadCurseForge(projectId, token, file, entry.name, entry.versions, releaseType)
+                uploadCurseForge(projectId, token, target, entry, releaseType)
             } catch (Exception e) {
                 failures << e.message
-                println "FAILED ${file.name}: ${e.message}"
+                println "FAILED ${target.name}: ${e.message}"
             }
         }
         if (!failures.isEmpty()) {
@@ -61,38 +66,113 @@ tasks.register('curseforgeUploadAll') {
     }
 }
 
-def uploadCurseForge(String projectId, String token, File file, String displayName, List<String> gameVersions, String releaseType) {
+tasks.register('modrinthUploadAll') {
+    dependsOn uploadDepends
+
+    doLast {
+        def projectFile = file('modrinth.project')
+        def tokenFile = file('modrinth.token')
+        def projectId = System.getenv('MODRINTH_PROJECT_ID') ?: findProperty('modrinthProjectId') ?: (projectFile.isFile() ? projectFile.text.trim() : null)
+        def token = System.getenv('MODRINTH_TOKEN') ?: findProperty('modrinthToken') ?: (tokenFile.isFile() ? tokenFile.text.trim() : null)
+        def dryRun = (System.getenv('MODRINTH_DRY_RUN') ?: findProperty('modrinthDryRun')) == 'true'
+        def versionType = System.getenv('MODRINTH_VERSION_TYPE') ?: 'release'
+        def only = System.getenv('MODRINTH_ONLY') ?: findProperty('modrinthOnly')
+        def skip = System.getenv('MODRINTH_SKIP') ?: findProperty('modrinthSkip')
+
+        if (!dryRun && (!projectId || !token)) {
+            throw new GradleException('Set MODRINTH_PROJECT_ID and MODRINTH_TOKEN, or run with -PmodrinthDryRun=true.')
+        }
+
+        def failures = []
+        selectedJars(only, skip).each { entry ->
+            def target = jarFile(entry)
+            if (!target.isFile()) {
+                failures << "Missing ${target}"
+                return
+            }
+            if (dryRun) {
+                println "Would upload ${target.name} as '${entry.name}' for ${entry.mc} ${entry.mrLoader}"
+                return
+            }
+            try {
+                uploadModrinth(projectId, token, target, entry, versionType)
+            } catch (Exception e) {
+                failures << e.message
+                println "FAILED ${target.name}: ${e.message}"
+            }
+        }
+        if (!failures.isEmpty()) {
+            throw new GradleException("Modrinth uploads failed:\n" + failures.join("\n"))
+        }
+    }
+}
+
+def uploadCurseForge(String projectId, String token, File file, Map entry, String releaseType) {
     def boundary = '----lookatit' + System.currentTimeMillis()
     def metadata = groovy.json.JsonOutput.toJson([
-            changelog    : 'Initial release.',
-            changelogType: 'markdown',
-            displayName  : displayName,
-            gameVersionNames: gameVersions + ['Client', 'Server'],
-            releaseType  : releaseType
+            changelog       : 'Initial release.',
+            changelogType   : 'markdown',
+            displayName     : entry.name,
+            gameVersionNames: [entry.mc, entry.cfLoader, 'Client', 'Server'],
+            releaseType     : releaseType
     ])
-    def body = new ByteArrayOutputStream()
-    body.write("--${boundary}\r\n".getBytes('UTF-8'))
-    body.write('Content-Disposition: form-data; name="metadata"\r\n'.getBytes('UTF-8'))
-    body.write('Content-Type: application/json\r\n\r\n'.getBytes('UTF-8'))
-    body.write(metadata.getBytes('UTF-8'))
-    body.write("\r\n--${boundary}\r\n".getBytes('UTF-8'))
-    body.write("Content-Disposition: form-data; name=\"file\"; filename=\"${file.name}\"\r\n".getBytes('UTF-8'))
-    body.write('Content-Type: application/java-archive\r\n\r\n'.getBytes('UTF-8'))
-    body.write(file.bytes)
-    body.write("\r\n--${boundary}--\r\n".getBytes('UTF-8'))
+    def body = multipartBody(boundary, [
+            [name: 'metadata', filename: null, contentType: 'application/json', bytes: metadata.getBytes('UTF-8')],
+            [name: 'file', filename: file.name, contentType: 'application/java-archive', bytes: file.bytes]
+    ])
+    def response = postMultipart("https://minecraft.curseforge.com/api/projects/${projectId}/upload-file", token, boundary, body, 'X-Api-Token')
+    println "Uploaded ${file.name}: ${response}"
+}
 
-    def connection = new URL("https://minecraft.curseforge.com/api/projects/${projectId}/upload-file").openConnection()
+def uploadModrinth(String projectId, String token, File file, Map entry, String versionType) {
+    def boundary = '----lookatit' + System.currentTimeMillis()
+    def metadata = groovy.json.JsonOutput.toJson([
+            project_id    : projectId,
+            name          : entry.name,
+            version_number: "1.0.0+${entry.mc}-${entry.mrLoader}",
+            changelog     : 'Initial release.',
+            dependencies  : [],
+            game_versions : [entry.mc],
+            version_type  : versionType,
+            loaders       : [entry.mrLoader],
+            file_parts    : ['file']
+    ])
+    def body = multipartBody(boundary, [
+            [name: 'data', filename: null, contentType: 'application/json', bytes: metadata.getBytes('UTF-8')],
+            [name: 'file', filename: file.name, contentType: 'application/java-archive', bytes: file.bytes]
+    ])
+    def response = postMultipart("https://api.modrinth.com/v2/version", token, boundary, body, 'Authorization', 'Bearer ')
+    println "Uploaded ${file.name}: ${response}"
+}
+
+def multipartBody(String boundary, List<Map> parts) {
+    def body = new ByteArrayOutputStream()
+    parts.each { part ->
+        body.write("--${boundary}\r\n".getBytes('UTF-8'))
+        def disposition = "Content-Disposition: form-data; name=\"${part.name}\""
+        if (part.filename != null) disposition += "; filename=\"${part.filename}\""
+        body.write((disposition + "\r\n").getBytes('UTF-8'))
+        body.write("Content-Type: ${part.contentType}\r\n\r\n".getBytes('UTF-8'))
+        body.write(part.bytes)
+        body.write("\r\n".getBytes('UTF-8'))
+    }
+    body.write("--${boundary}--\r\n".getBytes('UTF-8'))
+    return body.toByteArray()
+}
+
+def postMultipart(String url, String token, String boundary, byte[] body, String authHeader, String authPrefix = '') {
+    def connection = new URL(url).openConnection()
     connection.requestMethod = 'POST'
     connection.doOutput = true
-    connection.setRequestProperty('X-Api-Token', token)
+    connection.setRequestProperty(authHeader, authPrefix + token)
+    connection.setRequestProperty('User-Agent', 'trifectumsoftware/lookatit-uploader/1.0.0')
     connection.setRequestProperty('Content-Type', "multipart/form-data; boundary=${boundary}")
-    connection.setFixedLengthStreamingMode(body.size())
-    connection.outputStream.withStream { it.write(body.toByteArray()) }
-
+    connection.setFixedLengthStreamingMode(body.length)
+    connection.outputStream.withStream { it.write(body) }
     def code = connection.responseCode
     def response = code >= 200 && code < 300 ? connection.inputStream.text : connection.errorStream?.text
     if (code < 200 || code >= 300) {
-        throw new GradleException("CurseForge upload failed (${code}) for ${file.name}: ${response}")
+        throw new GradleException("Upload failed (${code}) for ${url}: ${response}")
     }
-    println "Uploaded ${file.name}: ${response}"
+    return response
 }

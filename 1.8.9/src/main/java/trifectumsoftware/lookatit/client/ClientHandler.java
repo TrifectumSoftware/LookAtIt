@@ -67,15 +67,12 @@ public class ClientHandler {
             }
         }
         if (slot == null) {
-            System.out.println("[lookatit] no hovered slot");
             return;
         }
         ItemStack stack = slot.getStack();
         if (stack == null || stack.stackSize <= 0) {
-            System.out.println("[lookatit] empty slot");
             return;
         }
-        System.out.println("[lookatit] sending " + stack.getDisplayName());
         ShowItemMod.NETWORK.sendToServer(new trifectumsoftware.lookatit.network.ShowItemMessage(stack));
     }
 }
