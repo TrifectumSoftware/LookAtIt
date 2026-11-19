@@ -18,6 +18,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -41,7 +42,8 @@ public class ChatIconRenderer {
 
         List<ChatLine> lines;
         try {
-            java.lang.reflect.Field fLines = GuiNewChat.class.getDeclaredField("drawnChatLines");
+            java.lang.reflect.Field fLines = ReflectionHelper.findField(
+                    GuiNewChat.class, "drawnChatLines", "field_146253_i");
             fLines.setAccessible(true);
             lines = (List<ChatLine>) fLines.get(chat);
         } catch (Exception e) {

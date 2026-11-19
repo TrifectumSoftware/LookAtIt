@@ -39,7 +39,17 @@ unimined.minecraft {
         loader "14.23.5.2864"
     }
 
-    defaultRemapJar = false
+    // Ship SRG names for Forge/Cleanroom instead of development-only MCP names.
+    defaultRemapJar = true
+}
+
+tasks.named('remapJar') {
+    prodNamespace 'searge'
+}
+
+// The root upload tasks invoke jar directly, so they must also produce the remapped JAR.
+tasks.named('jar') {
+    finalizedBy 'remapJar'
 }
 
 processResources {
